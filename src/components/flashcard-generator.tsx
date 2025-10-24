@@ -16,7 +16,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -28,9 +27,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMindPalace } from '@/contexts/mind-palace-context';
 import { generateFlashcardsAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
-  topic: z.string().min(2, 'Topic must be at least 2 characters.').max(100),
+  topic: z
+    .string()
+    .min(2, 'Topic must be at least 2 characters.')
+    .max(100, 'Topic must be at most 100 characters.'),
+  content: z
+    .string()
+    .min(10, 'Content must be at least 10 characters.')
+    .max(25000, 'Content must be at most 25,000 characters.'),
   numFlashcards: z.coerce.number().min(5).max(100),
   frontTextLength: z.enum(['short', 'medium', 'long']),
   backTextLength: z.enum(['short', 'medium', 'long']),
@@ -47,6 +55,7 @@ export function FlashcardGenerator() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       topic: '',
+      content: '',
       numFlashcards: 10,
       frontTextLength: 'short',
       backTextLength: 'medium',
@@ -55,8 +64,14 @@ export function FlashcardGenerator() {
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
-      const result = await generateFlashcardsAction(values);
+      const result = await generateFlashcardsAction({
+        topic: values.content, // We pass the content as the 'topic' to the action
+        numFlashcards: values.numFlashcards,
+        frontTextLength: values.frontTextLength,
+        backTextLength: values.backTextLength,
+      });
       if (result.success && result.data) {
+        // Use the user-provided topic for the set name
         createSet(values.topic, result.data);
         toast({
           title: 'Flashcard Set Created!',
@@ -98,12 +113,36 @@ export function FlashcardGenerator() {
                 name="topic"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Topic</FormLabel>
+                    <FormLabel>Set Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., The Roman Empire" {...field} />
+                      <Input
+                        placeholder="e.g., Chapter 1: The Roman Empire"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
-                      What subject do you want to learn about?
+                      Give your new flashcard set a name.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content to Generate From</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Paste your chapter text or a long article here..."
+                        className="h-48"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The AI will generate flashcards based on this text.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

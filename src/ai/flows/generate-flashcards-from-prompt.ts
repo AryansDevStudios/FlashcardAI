@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateFlashcardsFromPromptInputSchema = z.object({
-  topic: z.string().describe('The topic for the flashcards.'),
+  topic: z.string().describe('The topic or text content for the flashcards.'),
   numFlashcards: z.number().min(5).max(100).describe('The number of flashcards to generate.'),
   frontTextLength: z.enum(['short', 'medium', 'long']).describe('The desired length of the text on the front of the flashcards.'),
   backTextLength: z.enum(['short', 'medium', 'long']).describe('The desired length of the text on the back of the flashcards.'),
@@ -34,7 +34,14 @@ const prompt = ai.definePrompt({
   name: 'generateFlashcardsFromPromptPrompt',
   input: {schema: GenerateFlashcardsFromPromptInputSchema},
   output: {schema: GenerateFlashcardsFromPromptOutputSchema},
-  prompt: `You are a flashcard generation expert. Generate {{numFlashcards}} flashcards on the topic of {{topic}}.
+  prompt: `You are a flashcard generation expert. Your task is to generate {{numFlashcards}} flashcards based on the provided text content.
+
+Analyze the following content and identify the most important concepts, definitions, and key facts to create the flashcards.
+
+Content:
+"""
+{{topic}}
+"""
 
 The front of the flashcard should be {{frontTextLength}} in length and contain the question or concept.
 The back of the flashcard should be {{backTextLength}} in length and contain the answer or notes.
