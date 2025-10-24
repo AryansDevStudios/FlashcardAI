@@ -1,0 +1,27 @@
+'use server';
+
+import {
+  generateFlashcardsFromPrompt,
+  type GenerateFlashcardsFromPromptInput,
+} from '@/ai/flows/generate-flashcards-from-prompt';
+
+export async function generateFlashcardsAction(
+  input: GenerateFlashcardsFromPromptInput
+) {
+  try {
+    const flashcards = await generateFlashcardsFromPrompt(input);
+    if (!flashcards || flashcards.length === 0) {
+      return {
+        success: false,
+        error: 'The AI could not generate flashcards for this topic. Please try a different one.',
+      };
+    }
+    return { success: true, data: flashcards };
+  } catch (error) {
+    console.error('Error generating flashcards:', error);
+    return {
+      success: false,
+      error: 'An unexpected error occurred. Please try again later.',
+    };
+  }
+}
