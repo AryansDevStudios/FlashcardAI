@@ -12,6 +12,7 @@ interface MindPalaceContextType {
   deletePalace: (id: string) => void;
   updateFlashcard: (palaceId: string, cardId: string, newFront: string, newBack: string) => void;
   deleteFlashcard: (palaceId: string, cardId: string) => void;
+  addFlashcard: (palaceId: string, flashcard: Omit<Flashcard, 'id'>) => void;
 }
 
 const MindPalaceContext = createContext<MindPalaceContextType | undefined>(
@@ -88,6 +89,19 @@ export const MindPalaceProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
   }, [setPalaces]);
 
+  const addFlashcard = useCallback((palaceId: string, flashcard: Omit<Flashcard, 'id'>) => {
+    const newCard: Flashcard = { ...flashcard, id: crypto.randomUUID() };
+    setPalaces(prev => prev.map(palace => {
+      if (palace.id === palaceId) {
+        return {
+          ...palace,
+          flashcards: [...palace.flashcards, newCard]
+        };
+      }
+      return palace;
+    }));
+  }, [setPalaces]);
+
 
   return (
     <MindPalaceContext.Provider
@@ -99,6 +113,7 @@ export const MindPalaceProvider: React.FC<{ children: React.ReactNode }> = ({
         deletePalace,
         updateFlashcard,
         deleteFlashcard,
+        addFlashcard,
       }}
     >
       {children}

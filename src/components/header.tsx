@@ -15,13 +15,7 @@ export function Header() {
         <BrainCircuit className="h-7 w-7 text-primary" />
         <h1 className="text-xl font-semibold tracking-tight">Mind Palace</h1>
       </div>
-      {activePalace && (
-        <div className="absolute left-1/2 -translate-x-1/2">
-          <h2 className="text-lg font-medium text-muted-foreground hidden sm:block truncate max-w-xs md:max-w-md">
-            {activePalace.name}
-          </h2>
-        </div>
-      )}
+     
       <div className="flex items-center gap-2">
         {activePalace && (
           <Button variant="outline" size="sm" onClick={() => setActivePalaceId(null)}>

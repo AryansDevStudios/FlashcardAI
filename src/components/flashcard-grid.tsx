@@ -1,22 +1,81 @@
 'use client';
 
-import { Palace } from '@/lib/types';
-import { FlashcardItem } from './flashcard-item';
+import { useState } from 'react';
+import { LayoutGrid, Rows3, Shuffle } from 'lucide-react';
+import { Palace, Flashcard } from '@/lib/types';
+import { FlashcardGrid as GridView } from './flashcard-grid-view';
+import { FlashcardViewer } from './flashcard-viewer';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useMindPalace } from '@/contexts/mind-palace-context';
 
 interface FlashcardGridProps {
   palace: Palace;
 }
 
+type ViewMode = 'grid' | 'viewer';
+
 export function FlashcardGrid({ palace }: FlashcardGridProps) {
+  const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
+    'mind-palace-view-mode',
+    'viewer'
+  );
+  const { addFlashcard } = useMindPalace();
+
+  const handleAddCard = () => {
+    addFlashcard(palace.id, { front: 'New Front', back: 'New Back' });
+  };
+
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-      {palace.flashcards.map((flashcard) => (
-        <FlashcardItem
-          key={flashcard.id}
-          palaceId={palace.id}
-          flashcard={flashcard}
-        />
-      ))}
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight">
+                {palace.name}
+            </h2>
+            <span className="text-muted-foreground">({palace.flashcards.length} cards)</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+           <Button onClick={handleAddCard}>Add Card</Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setViewMode(viewMode === 'viewer' ? 'grid' : 'viewer')
+                  }
+                >
+                  {viewMode === 'viewer' ? (
+                    <LayoutGrid className="h-4 w-4" />
+                  ) : (
+                    <Rows3 className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  Switch to {viewMode === 'viewer' ? 'Grid View' : 'Viewer Mode'}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+      {viewMode === 'grid' ? (
+        <GridView palace={palace} />
+      ) : (
+        <FlashcardViewer palace={palace} />
+      )}
     </div>
   );
 }
