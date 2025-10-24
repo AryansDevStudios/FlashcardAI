@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import type { Flashcard } from '@/lib/types';
 import { useMindPalace } from '@/contexts/mind-palace-context';
@@ -75,9 +75,9 @@ const EditableText = ({
 
   return (
     <div
-      className="h-full p-4 whitespace-pre-wrap flex items-center justify-center"
+      className="h-full p-4 whitespace-pre-wrap flex items-center justify-center text-center prose prose-sm dark:prose-invert max-w-full"
     >
-      {text}
+      <ReactMarkdown>{text}</ReactMarkdown>
     </div>
   );
 };

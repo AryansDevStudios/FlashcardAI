@@ -20,7 +20,7 @@ export type GenerateFlashcardsFromPromptInput = z.infer<typeof GenerateFlashcard
 
 const FlashcardSchema = z.object({
   front: z.string().describe('The question or concept on the front of the flashcard.'),
-  back: z.string().describe('The answer or notes on the back of the flashcard.'),
+  back: z.string().describe('The answer or notes on the back of the flashcard. Use Markdown for formatting and bold the most important part of the answer.'),
 });
 
 const GenerateFlashcardsFromPromptOutputSchema = z.array(FlashcardSchema).describe('An array of flashcards generated from the prompt.');
@@ -39,16 +39,18 @@ const prompt = ai.definePrompt({
 The front of the flashcard should be {{frontTextLength}} in length and contain the question or concept.
 The back of the flashcard should be {{backTextLength}} in length and contain the answer or notes.
 
+IMPORTANT: For the back of the card, use Markdown to format the answer. You MUST bold the most important keyword or phrase in the answer using Markdown's double-asterisk syntax (e.g., **this is bold**).
+
 Return the flashcards as a JSON array of objects with "front" and "back" keys. For example:
 
 [
   {
     "front": "What is the capital of France?",
-    "back": "Paris"
+    "back": "The capital of France is **Paris**."
   },
   {
     "front": "What is the formula for water?",
-    "back": "H2O"
+    "back": "The chemical formula for water is **H2O**."
   }
 ]
 `,
