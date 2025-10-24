@@ -41,6 +41,16 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({
   }, [flashcardSet.flashcards, currentIndex]);
 
 
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, cards.length - 1));
+    setIsEditing(false);
+  }, [cards.length]);
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+    setIsEditing(false);
+  }, []);
+
   useEffect(() => {
     // Add keydown listener for navigation
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,18 +63,8 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isEditing]); // Rerun when isEditing changes
+  }, [isEditing, handleNext, handlePrev]); // Rerun when isEditing changes
 
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, cards.length - 1));
-    setIsEditing(false);
-  }, [cards.length]);
-
-  const handlePrev = useCallback(() => {
-    setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-    setIsEditing(false);
-  }, []);
 
   const handleShuffle = useCallback(() => {
     setCards((prevCards) => {

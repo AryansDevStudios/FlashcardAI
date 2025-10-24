@@ -144,6 +144,7 @@ export function FlashcardItem({
   const [isFlipped, setIsFlipped] = useState(false);
   const { updateFlashcard } = useMindPalace();
   const { toast } = useToast();
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const [isEditingFront, setIsEditingFront] = useState(false);
   const [isEditingBack, setIsEditingBack] = useState(false);
@@ -168,15 +169,35 @@ export function FlashcardItem({
       }
     }
   }, [isEditingProp, onSaveProp]);
-
-  const handleFlip = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('textarea')) {
-      return;
+  
+  const handleFlip = (e?: React.MouseEvent | KeyboardEvent) => {
+    if (e) {
+      const target = e.target as HTMLElement;
+      // Prevent flipping if a button or textarea was clicked
+      if (target.closest('button') || target.closest('textarea')) {
+        return;
+      }
     }
     if (isEditingProp) return; // Don't flip when in controlled editing mode
     setIsFlipped(!isFlipped);
   };
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        // Prevent space from scrolling the page
+        e.preventDefault();
+        handleFlip(e);
+      }
+    };
+    
+    const cardElement = cardRef.current;
+    cardElement?.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      cardElement?.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isEditingProp]); // Only re-add listener if editing mode changes
 
   const handleUpdate = (side: 'front' | 'back', newText: string) => {
     const newFront = side === 'front' ? newText : flashcard.front;
@@ -201,11 +222,16 @@ export function FlashcardItem({
 
   return (
     <div
+      ref={cardRef}
       className={cn(
         'group h-64 w-full [perspective:1000px]',
         !isEditingProp && 'cursor-pointer'
       )}
       onClick={handleFlip}
+      tabIndex={0}
+      role="button"
+      aria-live="polite"
+      aria-label={`Flashcard: ${isFlipped ? `Showing answer: ${flashcard.back}` : `Showing question: ${flashcard.front}`}. Press spacebar to flip.`}
     >
       <div
         className={cn(
