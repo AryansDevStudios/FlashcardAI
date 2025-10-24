@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
 
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -14,16 +13,21 @@ import { useToast } from '@/hooks/use-toast';
 interface FlashcardItemProps {
   palaceId: string;
   flashcard: Flashcard;
+  isEditing?: boolean;
+  onSave?: () => void;
 }
 
 const EditableText = ({
   text,
   onSave,
+  isEditing,
+  setIsEditing,
 }: {
   text: string;
   onSave: (newText: string) => void;
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -33,6 +37,10 @@ const EditableText = ({
       textareaRef.current?.select();
     }
   }, [isEditing]);
+  
+  useEffect(() => {
+    setEditText(text);
+  }, [text])
 
   const handleSave = () => {
     if (editText.trim() !== text) {
@@ -67,57 +75,103 @@ const EditableText = ({
 
   return (
     <div
-      onClick={() => setIsEditing(true)}
-      className="h-full cursor-pointer p-4 whitespace-pre-wrap"
+      className="h-full p-4 whitespace-pre-wrap"
     >
       {text}
     </div>
   );
 };
 
-export function FlashcardItem({ palaceId, flashcard }: FlashcardItemProps) {
+export function FlashcardItem({ palaceId, flashcard, isEditing: isEditingProp, onSave: onSaveProp }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { updateFlashcard } = useMindPalace();
   const { toast } = useToast();
 
+  const [isEditingFront, setIsEditingFront] = useState(false);
+  const [isEditingBack, setIsEditingBack] = useState(false);
+
+  useEffect(() => {
+    // If external editing state is provided, use it
+    if (typeof isEditingProp !== 'undefined') {
+        setIsEditingFront(isEditingProp);
+        setIsEditingBack(isEditingProp);
+    }
+  }, [isEditingProp]);
+
+  // When external onSave is called, it means save everything
+  useEffect(() => {
+    if(isEditingProp === false) { // Assuming false means save
+      // This is a bit tricky because EditableText saves on blur.
+      // We're now controlling save from parent.
+      // We might need to lift state up.
+      if (onSaveProp) {
+        onSaveProp();
+      }
+    }
+  }, [isEditingProp, onSaveProp]);
+
   const handleFlip = (e: React.MouseEvent) => {
-    // Prevent flipping when interacting with buttons or editable text
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('textarea')) {
       return;
     }
+    if(isEditingProp) return; // Don't flip when in controlled editing mode
     setIsFlipped(!isFlipped);
   };
   
   const handleUpdate = (side: 'front' | 'back', newText: string) => {
     const newFront = side === 'front' ? newText : flashcard.front;
     const newBack = side === 'back' ? newText : flashcard.back;
-    updateFlashcard(palaceId, flashcard.id, newFront, newBack);
-    toast({ description: "Card updated." });
+    if (newFront !== flashcard.front || newBack !== flashcard.back) {
+      updateFlashcard(palaceId, flashcard.id, newFront, newBack);
+      toast({ description: "Card updated." });
+    }
   };
+
+  const handleFrontSave = (newText: string) => {
+    handleUpdate('front', newText);
+    setIsEditingFront(false);
+    if(onSaveProp) onSaveProp();
+  }
+
+  const handleBackSave = (newText: string) => {
+    handleUpdate('back', newText);
+    setIsEditingBack(false);
+    if(onSaveProp) onSaveProp();
+  }
 
   return (
     <div
-      className="group h-64 w-full cursor-pointer [perspective:1000px]"
+      className={cn("group h-64 w-full [perspective:1000px]", !isEditingProp && "cursor-pointer")}
       onClick={handleFlip}
     >
       <div
         className={cn(
           'relative h-full w-full rounded-lg shadow-md transition-transform duration-700 [transform-style:preserve-3d]',
-          isFlipped && '[transform:rotateY(180deg)]'
+          isFlipped && !isEditingProp && '[transform:rotateY(180deg)]'
         )}
       >
         {/* Front */}
         <Card className="absolute h-full w-full [backface-visibility:hidden]">
           <div className="flex h-full flex-col items-center justify-center p-2 text-center">
-            <EditableText text={flashcard.front} onSave={(newText) => handleUpdate('front', newText)} />
+            <EditableText 
+              text={flashcard.front} 
+              onSave={handleFrontSave}
+              isEditing={isEditingFront}
+              setIsEditing={setIsEditingFront}
+            />
           </div>
         </Card>
 
         {/* Back */}
         <Card className="absolute h-full w-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <div className="flex h-full flex-col items-center justify-center p-2 text-center">
-             <EditableText text={flashcard.back} onSave={(newText) => handleUpdate('back', newText)} />
+             <EditableText 
+              text={flashcard.back} 
+              onSave={handleBackSave} 
+              isEditing={isEditingBack}
+              setIsEditing={setIsEditingBack}
+            />
           </div>
         </Card>
       </div>

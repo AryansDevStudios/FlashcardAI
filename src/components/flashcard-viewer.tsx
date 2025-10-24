@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Shuffle, Trash2, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shuffle, Trash2, Pencil, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMindPalace } from '@/contexts/mind-palace-context';
 import type { Palace, Flashcard } from '@/lib/types';
@@ -15,6 +15,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
   const { deleteFlashcard } = useMindPalace();
   const [cards, setCards] = useState<Flashcard[]>(palace.flashcards);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setCards(palace.flashcards);
@@ -23,14 +24,18 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
     } else if (palace.flashcards.length === 0) {
       setCurrentIndex(0);
     }
+    // Reset editing state when palace changes
+    setIsEditing(false);
   }, [palace.flashcards, currentIndex]);
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, cards.length - 1));
+    setIsEditing(false);
   }, [cards.length]);
 
   const handlePrev = useCallback(() => {
     setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+    setIsEditing(false);
   }, []);
 
   const handleShuffle = useCallback(() => {
@@ -43,13 +48,21 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
       return shuffled;
     });
     setCurrentIndex(0);
+    setIsEditing(false);
   }, []);
 
   const handleDelete = () => {
     if (currentCard) {
       deleteFlashcard(palace.id, currentCard.id);
+      setIsEditing(false);
     }
   };
+  
+  const toggleEdit = () => {
+    if (currentCard) {
+      setIsEditing(!isEditing);
+    }
+  }
 
   const currentCard = useMemo(() => cards[currentIndex], [cards, currentIndex]);
 
@@ -61,6 +74,8 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
             key={currentCard.id} // Ensures re-render on card change
             palaceId={palace.id}
             flashcard={currentCard}
+            isEditing={isEditing}
+            onSave={() => setIsEditing(false)}
           />
         ) : (
           <div className="aspect-video w-full flex items-center justify-center bg-card rounded-lg shadow-md">
@@ -69,22 +84,31 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
         )}
         
         <div className="w-full max-w-3xl mt-8 flex flex-col sm:flex-row items-center justify-between">
-            <div className="w-full sm:w-auto flex justify-center mb-4 sm:mb-0">
+            <div className="w-full sm:w-auto flex justify-center mb-4 sm:mb-0 space-x-2">
                 <Button
                 onClick={handleShuffle}
                 variant="outline"
                 aria-label="Shuffle cards"
-                disabled={cards.length < 2}
+                disabled={cards.length < 2 || isEditing}
                 >
                 <Shuffle className="w-5 h-5 mr-2" />
                 Shuffle
+                </Button>
+                 <Button
+                    onClick={toggleEdit}
+                    variant="outline"
+                    aria-label={isEditing ? 'Save card' : 'Edit card'}
+                    disabled={!currentCard}
+                    >
+                    {isEditing ? <Save className="w-5 h-5 mr-2" /> : <Pencil className="w-5 h-5 mr-2" />}
+                    {isEditing ? 'Save' : 'Edit'}
                 </Button>
             </div>
 
             <div className="flex items-center justify-center space-x-4">
                 <Button
                 onClick={handlePrev}
-                disabled={currentIndex === 0}
+                disabled={currentIndex === 0 || isEditing}
                 variant="outline"
                 size="icon"
                 aria-label="Previous card"
@@ -98,7 +122,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
 
                 <Button
                 onClick={handleNext}
-                disabled={currentIndex === cards.length - 1 || cards.length === 0}
+                disabled={currentIndex === cards.length - 1 || cards.length === 0 || isEditing}
                 variant="outline"
                 size="icon"
                 aria-label="Next card"
@@ -111,7 +135,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
                     onClick={handleDelete}
                     variant="destructive"
                     aria-label="Delete card"
-                    disabled={!currentCard}
+                    disabled={!currentCard || isEditing}
                     >
                     <Trash2 className="w-5 h-5 mr-2" />
                     Delete
