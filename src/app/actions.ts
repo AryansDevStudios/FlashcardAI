@@ -15,13 +15,12 @@ export async function generateFlashcardsAction(
   try {
     const flashcards = await generateFlashcardsFromPrompt(input);
     if (!flashcards || flashcards.length === 0) {
-      console.log(
-        'The AI could not generate flashcards for this topic. Please try a different one.'
-      );
+      const errorMessage =
+        'The AI could not generate flashcards for this topic. Please try a different one.';
+      console.error('generateFlashcardsAction Error:', errorMessage);
       return {
         success: false,
-        error:
-          'The AI could not generate flashcards for this topic. Please try a different one.',
+        error: errorMessage,
       };
     }
     return { success: true, data: flashcards };
