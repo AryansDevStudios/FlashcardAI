@@ -68,14 +68,14 @@ const EditableText = ({
         onChange={(e) => setEditText(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className="h-full w-full resize-none bg-transparent text-current"
+        className="h-full w-full resize-none bg-transparent text-current text-center"
       />
     );
   }
 
   return (
     <div
-      className="h-full p-4 whitespace-pre-wrap"
+      className="h-full p-4 whitespace-pre-wrap flex items-center justify-center"
     >
       {text}
     </div>
