@@ -8,7 +8,7 @@ function safeJsonParse<T>(item: string | null): T | null {
   try {
     return JSON.parse(item);
   } catch (error) {
-    console.error('Failed to parse JSON from localStorage', error);
+    console.log('Failed to parse JSON from localStorage', error);
     return null;
   }
 }
@@ -50,7 +50,7 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return initialValue;
     }
   });
@@ -65,7 +65,7 @@ export function useLocalStorage<T>(
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         }
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
     },
     [key, storedValue]
@@ -80,7 +80,7 @@ export function useLocalStorage<T>(
         setStoredValue(JSON.parse(item));
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }, [key]);
 

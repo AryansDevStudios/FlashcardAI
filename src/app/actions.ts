@@ -15,6 +15,9 @@ export async function generateFlashcardsAction(
   try {
     const flashcards = await generateFlashcardsFromPrompt(input);
     if (!flashcards || flashcards.length === 0) {
+      console.log(
+        'The AI could not generate flashcards for this topic. Please try a different one.'
+      );
       return {
         success: false,
         error:

@@ -60,6 +60,7 @@ export function TtsSettingsDialog() {
           setIsPlaying((prev) => ({ ...prev, [voice]: false }));
         };
       } else {
+        console.log(result.error);
         toast({
           variant: 'destructive',
           title: 'Preview Failed',

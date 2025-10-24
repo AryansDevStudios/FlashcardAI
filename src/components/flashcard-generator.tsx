@@ -82,6 +82,7 @@ export function FlashcardGenerator() {
           description: `Your new set "${values.topic}" is ready.`,
         });
       } else {
+        console.log(result.error);
         toast({
           variant: 'destructive',
           title: 'Generation Failed',

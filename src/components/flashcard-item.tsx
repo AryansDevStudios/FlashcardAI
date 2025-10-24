@@ -48,6 +48,7 @@ const SpeakerButton = ({ text }: { text: string }) => {
         setAudio(newAudio);
         newAudio.play();
       } else {
+        console.log(result.error);
         toast({
           variant: 'destructive',
           title: 'Audio Failed',
