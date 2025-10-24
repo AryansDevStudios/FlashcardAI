@@ -37,7 +37,7 @@ const formSchema = z.object({
     .max(100, 'Set name must be at most 100 characters.'),
   content: z
     .string()
-    .max(400000, 'Content must be at most 400,000 characters.')
+    .max(600000, 'Content must be at most 600,000 characters.')
     .optional(),
   numFlashcards: z.coerce.number().min(5).max(100),
   frontTextLength: z.enum(['short', 'medium', 'long']),
