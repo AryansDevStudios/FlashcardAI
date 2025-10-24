@@ -12,6 +12,7 @@ import { useMindPalace } from '@/contexts/mind-palace-context';
 import { useToast } from '@/hooks/use-toast';
 import { textToSpeechAction } from '@/app/actions';
 import { Button } from './ui/button';
+import { useTtsSettings } from '@/contexts/tts-settings-context';
 
 interface FlashcardItemProps {
   setId: string;
@@ -24,15 +25,24 @@ const SpeakerButton = ({ text }: { text: string }) => {
   const [isPending, startTransition] = useTransition();
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+  const { voiceSource, aiVoice } = useTtsSettings();
 
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    if (voiceSource === 'browser') {
+      const utterance = new SpeechSynthesisUtterance(text);
+      speechSynthesis.speak(utterance);
+      return;
+    }
+
+    // AI Voice logic
     if (audio) {
       audio.play();
       return;
     }
     startTransition(async () => {
-      const result = await textToSpeechAction({ text });
+      const result = await textToSpeechAction({ text, voice: aiVoice });
       if (result.success && result.data) {
         const newAudio = new Audio(result.data);
         setAudio(newAudio);
@@ -64,7 +74,6 @@ const SpeakerButton = ({ text }: { text: string }) => {
     </Button>
   );
 };
-
 
 const EditableText = ({
   text,
@@ -169,7 +178,7 @@ export function FlashcardItem({
       }
     }
   }, [isEditingProp, onSaveProp]);
-  
+
   const handleFlip = (e?: React.MouseEvent | KeyboardEvent) => {
     if (e) {
       const target = e.target as HTMLElement;
@@ -181,7 +190,7 @@ export function FlashcardItem({
     if (isEditingProp) return; // Don't flip when in controlled editing mode
     setIsFlipped(!isFlipped);
   };
-  
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -190,7 +199,7 @@ export function FlashcardItem({
         handleFlip(e);
       }
     };
-    
+
     const cardElement = cardRef.current;
     cardElement?.addEventListener('keydown', handleKeyDown);
 
@@ -231,7 +240,11 @@ export function FlashcardItem({
       tabIndex={0}
       role="button"
       aria-live="polite"
-      aria-label={`Flashcard: ${isFlipped ? `Showing answer: ${flashcard.back}` : `Showing question: ${flashcard.front}`}. Press spacebar to flip.`}
+      aria-label={`Flashcard: ${
+        isFlipped
+          ? `Showing answer: ${flashcard.back}`
+          : `Showing question: ${flashcard.front}`
+      }. Press spacebar to flip.`}
     >
       <div
         className={cn(
@@ -248,7 +261,7 @@ export function FlashcardItem({
               isEditing={isEditingFront}
               setIsEditing={setIsEditingFront}
             />
-             <SpeakerButton text={flashcard.front} />
+            <SpeakerButton text={flashcard.front} />
           </div>
         </Card>
 

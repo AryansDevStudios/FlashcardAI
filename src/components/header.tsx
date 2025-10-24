@@ -1,10 +1,11 @@
 'use client';
 
-import { BrainCircuit } from 'lucide-react';
+import { BrainCircuit, Settings } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useMindPalace } from '@/contexts/mind-palace-context';
 import { Button } from './ui/button';
+import { TtsSettingsDialog } from './tts-settings';
 
 export function Header() {
   const { activeSet, setActiveSetId } = useMindPalace();
@@ -15,13 +16,18 @@ export function Header() {
         <BrainCircuit className="h-7 w-7 text-primary" />
         <h1 className="text-xl font-semibold tracking-tight">FlashcardAI</h1>
       </div>
-     
+
       <div className="flex items-center gap-2">
         {activeSet && (
-          <Button variant="outline" size="sm" onClick={() => setActiveSetId(null)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveSetId(null)}
+          >
             New Set
           </Button>
         )}
+        <TtsSettingsDialog />
         <ThemeToggle />
       </div>
     </header>

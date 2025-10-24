@@ -3,6 +3,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { Inter } from 'next/font/google';
+import { TtsSettingsProvider } from '@/contexts/tts-settings-context';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -25,8 +26,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <TtsSettingsProvider>
+            {children}
+            <Toaster />
+          </TtsSettingsProvider>
         </ThemeProvider>
       </body>
     </html>
