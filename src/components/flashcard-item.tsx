@@ -68,14 +68,14 @@ const EditableText = ({
         onChange={(e) => setEditText(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className="h-full w-full resize-none bg-transparent text-current text-center"
+        className="h-full w-full resize-none bg-transparent text-current text-center text-lg"
       />
     );
   }
 
   return (
     <div
-      className="h-full p-4 whitespace-pre-wrap flex items-center justify-center text-center prose prose-sm dark:prose-invert max-w-full"
+      className="h-full p-4 whitespace-pre-wrap flex items-center justify-center text-center prose prose-lg dark:prose-invert max-w-full"
     >
       <ReactMarkdown>{text}</ReactMarkdown>
     </div>
