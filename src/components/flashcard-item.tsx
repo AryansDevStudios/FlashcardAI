@@ -77,7 +77,7 @@ const EditableText = ({
 
 export function FlashcardItem({ palaceId, flashcard }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const { updateFlashcard, deleteFlashcard } = useMindPalace();
+  const { updateFlashcard } = useMindPalace();
   const { toast } = useToast();
 
   const handleFlip = (e: React.MouseEvent) => {
@@ -121,20 +121,6 @@ export function FlashcardItem({ palaceId, flashcard }: FlashcardItemProps) {
           </div>
         </Card>
       </div>
-
-       <Button
-          variant="destructive"
-          size="icon"
-          className="absolute bottom-2 right-2 z-10 h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
-          onClick={(e) => {
-            e.stopPropagation();
-            deleteFlashcard(palaceId, flashcard.id);
-            toast({ description: "Card deleted." });
-          }}
-          aria-label="Delete card"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
     </div>
   );
 }
