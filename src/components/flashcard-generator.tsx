@@ -33,12 +33,12 @@ import { Input } from '@/components/ui/input';
 const formSchema = z.object({
   topic: z
     .string()
-    .min(2, 'Topic must be at least 2 characters.')
-    .max(100, 'Topic must be at most 100 characters.'),
+    .min(2, 'Set name must be at least 2 characters.')
+    .max(100, 'Set name must be at most 100 characters.'),
   content: z
     .string()
-    .min(10, 'Content must be at least 10 characters.')
-    .max(25000, 'Content must be at most 25,000 characters.'),
+    .max(25000, 'Content must be at most 25,000 characters.')
+    .optional(),
   numFlashcards: z.coerce.number().min(5).max(100),
   frontTextLength: z.enum(['short', 'medium', 'long']),
   backTextLength: z.enum(['short', 'medium', 'long']),
@@ -64,12 +64,16 @@ export function FlashcardGenerator() {
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
+      // If content is provided, use it. Otherwise, use the topic.
+      const generationSource = values.content || values.topic;
+
       const result = await generateFlashcardsAction({
-        topic: values.content, // We pass the content as the 'topic' to the action
+        topic: generationSource,
         numFlashcards: values.numFlashcards,
         frontTextLength: values.frontTextLength,
         backTextLength: values.backTextLength,
       });
+
       if (result.success && result.data) {
         // Use the user-provided topic for the set name
         createSet(values.topic, result.data);
@@ -81,7 +85,9 @@ export function FlashcardGenerator() {
         toast({
           variant: 'destructive',
           title: 'Generation Failed',
-          description: result.error,
+          description:
+            result.error ||
+            'The AI could not generate flashcards for this topic. Please try a different one.',
         });
       }
     });
@@ -121,7 +127,8 @@ export function FlashcardGenerator() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Give your new flashcard set a name.
+                      Give your new flashcard set a name. The AI will use this
+                      if no content is provided.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -133,7 +140,9 @@ export function FlashcardGenerator() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content to Generate From</FormLabel>
+                    <FormLabel>
+                      Content to Generate From (Optional)
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Paste your chapter text or a long article here..."
@@ -142,7 +151,8 @@ export function FlashcardGenerator() {
                       />
                     </FormControl>
                     <FormDescription>
-                      The AI will generate flashcards based on this text.
+                      The AI will generate flashcards based on this text. If
+                      left blank, it will use the set name.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
