@@ -4,36 +4,12 @@ import React, { createContext, useContext } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
 export const AI_VOICES = [
-  'Zephyr',
-  'Puck',
-  'Charon',
-  'Kore',
-  'Fenrir',
-  'Leda',
-  'Orus',
-  'Aoede',
-  'Callirrhoe',
-  'Autonoe',
-  'Enceladus',
-  'Iapetus',
-  'Umbriel',
-  'Algieba',
-  'Despina',
-  'Erinome',
-  'Algenib',
-  'Rasalgethi',
-  'Laomedeia',
-  'Achernar',
-  'Alnilam',
-  'Schedar',
-  'Gacrux',
-  'Pulcherrima',
-  'Achird',
-  'Zubenelgenubi',
-  'Vindemiatrix',
-  'Sadachbia',
-  'Sadaltager',
-  'Sulafat',
+  'Charon', // Male
+  'Puck', // Male
+  'Zephyr', // Male
+  'Kore', // Female
+  'Leda', // Female
+  'Aoede', // Female
 ];
 
 type VoiceSource = 'browser' | 'ai';
@@ -58,7 +34,7 @@ export const TtsSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [aiVoice, setAiVoice] = useLocalStorage<string>(
     'flashcard-ai-voice',
-    'Algenib'
+    'Charon'
   );
 
   return (
