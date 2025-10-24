@@ -11,7 +11,7 @@ import { useMindPalace } from '@/contexts/mind-palace-context';
 import { useToast } from '@/hooks/use-toast';
 
 interface FlashcardItemProps {
-  palaceId: string;
+  setId: string;
   flashcard: Flashcard;
   isEditing?: boolean;
   onSave?: () => void;
@@ -68,7 +68,7 @@ const EditableText = ({
         onChange={(e) => setEditText(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className="h-full w-full resize-none bg-transparent text-current text-center text-lg"
+        className="h-full w-full resize-none bg-transparent text-current text-center text-lg flex items-center justify-center"
       />
     );
   }
@@ -77,12 +77,20 @@ const EditableText = ({
     <div
       className="h-full p-4 whitespace-pre-wrap flex items-center justify-center text-center prose prose-lg dark:prose-invert max-w-full"
     >
-      <ReactMarkdown>{text}</ReactMarkdown>
+      <ReactMarkdown
+        components={{
+          p: ({ node, ...props }) => (
+            <p className="text-xl" {...props} />
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
 };
 
-export function FlashcardItem({ palaceId, flashcard, isEditing: isEditingProp, onSave: onSaveProp }: FlashcardItemProps) {
+export function FlashcardItem({ setId, flashcard, isEditing: isEditingProp, onSave: onSaveProp }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { updateFlashcard } = useMindPalace();
   const { toast } = useToast();
@@ -123,7 +131,7 @@ export function FlashcardItem({ palaceId, flashcard, isEditing: isEditingProp, o
     const newFront = side === 'front' ? newText : flashcard.front;
     const newBack = side === 'back' ? newText : flashcard.back;
     if (newFront !== flashcard.front || newBack !== flashcard.back) {
-      updateFlashcard(palaceId, flashcard.id, newFront, newBack);
+      updateFlashcard(setId, flashcard.id, newFront, newBack);
       toast({ description: "Card updated." });
     }
   };

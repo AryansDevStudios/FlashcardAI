@@ -1,5 +1,5 @@
-import MindPalaceApp from '@/components/mind-palace-app';
+import FlashcardAIApp from '@/components/mind-palace-app';
 
 export default function Home() {
-  return <MindPalaceApp />;
+  return <FlashcardAIApp />;
 }

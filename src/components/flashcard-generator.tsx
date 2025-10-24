@@ -40,7 +40,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function FlashcardGenerator() {
   const [isPending, startTransition] = useTransition();
-  const { createPalace } = useMindPalace();
+  const { createSet } = useMindPalace();
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -57,10 +57,10 @@ export function FlashcardGenerator() {
     startTransition(async () => {
       const result = await generateFlashcardsAction(values);
       if (result.success && result.data) {
-        createPalace(values.topic, result.data);
+        createSet(values.topic, result.data);
         toast({
-          title: 'Palace Created!',
-          description: `Your new palace "${values.topic}" is ready.`,
+          title: 'Flashcard Set Created!',
+          description: `Your new set "${values.topic}" is ready.`,
         });
       } else {
         toast({
@@ -74,19 +74,20 @@ export function FlashcardGenerator() {
 
   return (
     <div className="container mx-auto flex max-w-2xl flex-col items-center justify-center gap-8 px-4 py-16">
-        <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                Welcome to FlashcardAI
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-                Create a new "palace" of flashcards using AI to start your learning journey.
-            </p>
-        </div>
+      <div className="text-center">
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+          Welcome to FlashcardAI
+        </h1>
+        <p className="mt-4 text-lg text-muted-foreground">
+          Create a new set of flashcards using AI to start your learning
+          journey.
+        </p>
+      </div>
       <Card className="w-full shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <Wand2 className="h-6 w-6 text-primary" />
-            Create a New Palace with AI
+            Create a New Flashcard Set with AI
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -185,7 +186,7 @@ export function FlashcardGenerator() {
                 {isPending ? (
                   <Loader2 className="animate-spin" />
                 ) : (
-                  'Generate Palace'
+                  'Generate Flashcards'
                 )}
               </Button>
             </form>

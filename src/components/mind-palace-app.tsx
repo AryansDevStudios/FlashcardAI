@@ -8,7 +8,7 @@ import { FlashcardGenerator } from '@/components/flashcard-generator';
 import { FlashcardGrid } from '@/components/flashcard-grid';
 
 function AppContent() {
-  const { activePalace } = useMindPalace();
+  const { activeSet } = useMindPalace();
 
   return (
     <SidebarProvider>
@@ -19,8 +19,8 @@ function AppContent() {
         <div className="flex h-full flex-col">
           <Header />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-            {activePalace ? (
-              <FlashcardGrid key={activePalace.id} palace={activePalace} />
+            {activeSet ? (
+              <FlashcardGrid key={activeSet.id} flashcardSet={activeSet} />
             ) : (
               <FlashcardGenerator />
             )}
@@ -31,7 +31,7 @@ function AppContent() {
   );
 }
 
-export default function MindPalaceApp() {
+export default function FlashcardAIApp() {
   return (
     <MindPalaceProvider>
       <AppContent />

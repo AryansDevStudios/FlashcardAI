@@ -7,7 +7,7 @@ import { useMindPalace } from '@/contexts/mind-palace-context';
 import { Button } from './ui/button';
 
 export function Header() {
-  const { activePalace, setActivePalaceId } = useMindPalace();
+  const { activeSet, setActiveSetId } = useMindPalace();
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-2">
@@ -17,9 +17,9 @@ export function Header() {
       </div>
      
       <div className="flex items-center gap-2">
-        {activePalace && (
-          <Button variant="outline" size="sm" onClick={() => setActivePalaceId(null)}>
-            New Palace
+        {activeSet && (
+          <Button variant="outline" size="sm" onClick={() => setActiveSetId(null)}>
+            New Set
           </Button>
         )}
         <ThemeToggle />

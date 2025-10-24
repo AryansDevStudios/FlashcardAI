@@ -4,7 +4,7 @@ export interface Flashcard {
   back: string;
 }
 
-export interface Palace {
+export interface FlashcardSet {
   id: string;
   name: string;
   flashcards: Flashcard[];

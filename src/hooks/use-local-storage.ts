@@ -2,6 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+// This is a helper function to safely parse JSON
+function safeJsonParse<T>(item: string | null): T | null {
+  if (item === null) return null;
+  try {
+    return JSON.parse(item);
+  } catch (error) {
+    console.error('Failed to parse JSON from localStorage', error);
+    return null;
+  }
+}
+
+
 export function useLocalStorage<T>(
   key: string,
   initialValue: T
@@ -11,6 +23,29 @@ export function useLocalStorage<T>(
     if (typeof window === 'undefined') {
       return initialValue;
     }
+
+    // LEGACY MIGRATION: Check for old keys and migrate if needed
+    if (key === 'flashcard-ai-sets' && !window.localStorage.getItem(key)) {
+        const oldData = safeJsonParse<any[]>(window.localStorage.getItem('flashcard-ai-palaces'));
+        if (oldData) {
+            window.localStorage.setItem(key, JSON.stringify(oldData));
+            window.localStorage.removeItem('flashcard-ai-palaces');
+            return oldData as T;
+        }
+    }
+    if (key === 'flashcard-ai-active-set' && !window.localStorage.getItem(key)) {
+        const oldId = window.localStorage.getItem('flashcard-ai-active');
+        if (oldId) {
+            const parsedId = safeJsonParse<string>(oldId);
+            if (parsedId) {
+                window.localStorage.setItem(key, JSON.stringify(parsedId));
+                window.localStorage.removeItem('flashcard-ai-active');
+                return parsedId as T;
+            }
+        }
+    }
+
+
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;

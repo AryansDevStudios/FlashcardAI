@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { LayoutGrid, Rows3, Shuffle } from 'lucide-react';
-import { Palace, Flashcard } from '@/lib/types';
+import { LayoutGrid, Rows3 } from 'lucide-react';
+import { FlashcardSet, Flashcard } from '@/lib/types';
 import { FlashcardGrid as GridView } from './flashcard-grid-view';
 import { FlashcardViewer } from './flashcard-viewer';
 import { Button } from '@/components/ui/button';
@@ -16,12 +16,12 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useMindPalace } from '@/contexts/mind-palace-context';
 
 interface FlashcardGridProps {
-  palace: Palace;
+  flashcardSet: FlashcardSet;
 }
 
 type ViewMode = 'grid' | 'viewer';
 
-export function FlashcardGrid({ palace }: FlashcardGridProps) {
+export function FlashcardGrid({ flashcardSet }: FlashcardGridProps) {
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
     'flashcard-ai-view-mode',
     'viewer'
@@ -29,7 +29,7 @@ export function FlashcardGrid({ palace }: FlashcardGridProps) {
   const { addFlashcard } = useMindPalace();
 
   const handleAddCard = () => {
-    addFlashcard(palace.id, { front: 'New Front', back: 'New Back' });
+    addFlashcard(flashcardSet.id, { front: 'New Front', back: 'New Back' });
   };
 
 
@@ -38,9 +38,9 @@ export function FlashcardGrid({ palace }: FlashcardGridProps) {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold tracking-tight">
-                {palace.name}
+                {flashcardSet.name}
             </h2>
-            <span className="text-muted-foreground">({palace.flashcards.length} cards)</span>
+            <span className="text-muted-foreground">({flashcardSet.flashcards.length} cards)</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -72,9 +72,9 @@ export function FlashcardGrid({ palace }: FlashcardGridProps) {
         </div>
       </div>
       {viewMode === 'grid' ? (
-        <GridView palace={palace} />
+        <GridView flashcardSet={flashcardSet} />
       ) : (
-        <FlashcardViewer palace={palace} />
+        <FlashcardViewer flashcardSet={flashcardSet} />
       )}
     </div>
   );

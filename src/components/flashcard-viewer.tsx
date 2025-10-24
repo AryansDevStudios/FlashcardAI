@@ -4,29 +4,29 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Shuffle, Trash2, Pencil, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMindPalace } from '@/contexts/mind-palace-context';
-import type { Palace, Flashcard } from '@/lib/types';
+import type { FlashcardSet, Flashcard } from '@/lib/types';
 import { FlashcardItem } from './flashcard-item';
 
 interface FlashcardViewerProps {
-  palace: Palace;
+  flashcardSet: FlashcardSet;
 }
 
-export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
+export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcardSet }) => {
   const { deleteFlashcard } = useMindPalace();
-  const [cards, setCards] = useState<Flashcard[]>(palace.flashcards);
+  const [cards, setCards] = useState<Flashcard[]>(flashcardSet.flashcards);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    setCards(palace.flashcards);
-    if (palace.flashcards.length > 0 && currentIndex >= palace.flashcards.length) {
-      setCurrentIndex(Math.max(0, palace.flashcards.length - 1));
-    } else if (palace.flashcards.length === 0) {
+    setCards(flashcardSet.flashcards);
+    if (flashcardSet.flashcards.length > 0 && currentIndex >= flashcardSet.flashcards.length) {
+      setCurrentIndex(Math.max(0, flashcardSet.flashcards.length - 1));
+    } else if (flashcardSet.flashcards.length === 0) {
       setCurrentIndex(0);
     }
-    // Reset editing state when palace changes
+    // Reset editing state when flashcardSet changes
     setIsEditing(false);
-  }, [palace.flashcards, currentIndex]);
+  }, [flashcardSet.flashcards, currentIndex]);
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, cards.length - 1));
@@ -53,7 +53,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
 
   const handleDelete = () => {
     if (currentCard) {
-      deleteFlashcard(palace.id, currentCard.id);
+      deleteFlashcard(flashcardSet.id, currentCard.id);
       setIsEditing(false);
     }
   };
@@ -72,14 +72,14 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ palace }) => {
         {currentCard ? (
           <FlashcardItem
             key={currentCard.id} // Ensures re-render on card change
-            palaceId={palace.id}
+            setId={flashcardSet.id}
             flashcard={currentCard}
             isEditing={isEditing}
             onSave={() => setIsEditing(false)}
           />
         ) : (
           <div className="aspect-video w-full flex items-center justify-center bg-card rounded-lg shadow-md">
-            <p className="text-xl text-muted-foreground">No flashcards in this palace.</p>
+            <p className="text-xl text-muted-foreground">No flashcards in this set.</p>
           </div>
         )}
         

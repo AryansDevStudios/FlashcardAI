@@ -1,18 +1,18 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { Palace, Flashcard } from '@/lib/types';
+import type { FlashcardSet, Flashcard } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
 interface MindPalaceContextType {
-  palaces: Palace[];
-  activePalace: Palace | null;
-  createPalace: (name: string, flashcards: Omit<Flashcard, 'id'>[]) => void;
-  setActivePalaceId: (id: string | null) => void;
-  deletePalace: (id: string) => void;
-  updateFlashcard: (palaceId: string, cardId: string, newFront: string, newBack: string) => void;
-  deleteFlashcard: (palaceId: string, cardId: string) => void;
-  addFlashcard: (palaceId: string, flashcard: Omit<Flashcard, 'id'>) => void;
+  flashcardSets: FlashcardSet[];
+  activeSet: FlashcardSet | null;
+  createSet: (name: string, flashcards: Omit<Flashcard, 'id'>[]) => void;
+  setActiveSetId: (id: string | null) => void;
+  deleteSet: (id: string) => void;
+  updateFlashcard: (setId: string, cardId: string, newFront: string, newBack: string) => void;
+  deleteFlashcard: (setId: string, cardId: string) => void;
+  addFlashcard: (setId: string, flashcard: Omit<Flashcard, 'id'>) => void;
 }
 
 const MindPalaceContext = createContext<MindPalaceContextType | undefined>(
@@ -22,50 +22,50 @@ const MindPalaceContext = createContext<MindPalaceContextType | undefined>(
 export const MindPalaceProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [palaces, setPalaces] = useLocalStorage<Palace[]>('flashcard-ai-palaces', []);
-  const [activePalaceId, setActivePalaceId] = useLocalStorage<string | null>(
-    'flashcard-ai-active',
+  const [flashcardSets, setFlashcardSets] = useLocalStorage<FlashcardSet[]>('flashcard-ai-sets', []);
+  const [activeSetId, setActiveSetId] = useLocalStorage<string | null>(
+    'flashcard-ai-active-set',
     null
   );
-  const [activePalace, setActivePalace] = useState<Palace | null>(null);
+  const [activeSet, setActiveSet] = useState<FlashcardSet | null>(null);
 
   useEffect(() => {
-    if (activePalaceId) {
-      const foundPalace = palaces.find((p) => p.id === activePalaceId);
-      setActivePalace(foundPalace || null);
+    if (activeSetId) {
+      const foundSet = flashcardSets.find((p) => p.id === activeSetId);
+      setActiveSet(foundSet || null);
     } else {
-      setActivePalace(null);
+      setActiveSet(null);
     }
-  }, [activePalaceId, palaces]);
+  }, [activeSetId, flashcardSets]);
 
-  const createPalace = useCallback((name: string, flashcards: Omit<Flashcard, 'id'>[]) => {
-      const newPalace: Palace = {
+  const createSet = useCallback((name: string, flashcards: Omit<Flashcard, 'id'>[]) => {
+      const newSet: FlashcardSet = {
         id: crypto.randomUUID(),
         name,
         flashcards: flashcards.map(card => ({...card, id: crypto.randomUUID()})),
         createdAt: new Date().toISOString(),
       };
-      setPalaces((prev) => [newPalace, ...prev]);
-      setActivePalaceId(newPalace.id);
+      setFlashcardSets((prev) => [newSet, ...prev]);
+      setActiveSetId(newSet.id);
     },
-    [setPalaces, setActivePalaceId]
+    [setFlashcardSets, setActiveSetId]
   );
   
-  const deletePalace = useCallback((id: string) => {
-      setPalaces((prev) => prev.filter((p) => p.id !== id));
-      if (activePalaceId === id) {
-        setActivePalaceId(null);
+  const deleteSet = useCallback((id: string) => {
+      setFlashcardSets((prev) => prev.filter((p) => p.id !== id));
+      if (activeSetId === id) {
+        setActiveSetId(null);
       }
     },
-    [activePalaceId, setPalaces, setActivePalaceId]
+    [activeSetId, setFlashcardSets, setActiveSetId]
   );
 
-  const updateFlashcard = useCallback((palaceId: string, cardId: string, newFront: string, newBack: string) => {
-    setPalaces(prev => prev.map(palace => {
-      if (palace.id === palaceId) {
+  const updateFlashcard = useCallback((setId: string, cardId: string, newFront: string, newBack: string) => {
+    setFlashcardSets(prev => prev.map(set => {
+      if (set.id === setId) {
         return {
-          ...palace,
-          flashcards: palace.flashcards.map(card => {
+          ...set,
+          flashcards: set.flashcards.map(card => {
             if (card.id === cardId) {
               return { ...card, front: newFront, back: newBack };
             }
@@ -73,44 +73,44 @@ export const MindPalaceProvider: React.FC<{ children: React.ReactNode }> = ({
           })
         };
       }
-      return palace;
+      return set;
     }));
-  }, [setPalaces]);
+  }, [setFlashcardSets]);
 
-  const deleteFlashcard = useCallback((palaceId: string, cardId: string) => {
-    setPalaces(prev => prev.map(palace => {
-      if (palace.id === palaceId) {
+  const deleteFlashcard = useCallback((setId: string, cardId: string) => {
+    setFlashcardSets(prev => prev.map(set => {
+      if (set.id === setId) {
         return {
-          ...palace,
-          flashcards: palace.flashcards.filter(card => card.id !== cardId)
+          ...set,
+          flashcards: set.flashcards.filter(card => card.id !== cardId)
         };
       }
-      return palace;
+      return set;
     }));
-  }, [setPalaces]);
+  }, [setFlashcardSets]);
 
-  const addFlashcard = useCallback((palaceId: string, flashcard: Omit<Flashcard, 'id'>) => {
+  const addFlashcard = useCallback((setId: string, flashcard: Omit<Flashcard, 'id'>) => {
     const newCard: Flashcard = { ...flashcard, id: crypto.randomUUID() };
-    setPalaces(prev => prev.map(palace => {
-      if (palace.id === palaceId) {
+    setFlashcardSets(prev => prev.map(set => {
+      if (set.id === setId) {
         return {
-          ...palace,
-          flashcards: [...palace.flashcards, newCard]
+          ...set,
+          flashcards: [...set.flashcards, newCard]
         };
       }
-      return palace;
+      return set;
     }));
-  }, [setPalaces]);
+  }, [setFlashcardSets]);
 
 
   return (
     <MindPalaceContext.Provider
       value={{
-        palaces,
-        activePalace,
-        createPalace,
-        setActivePalaceId,
-        deletePalace,
+        flashcardSets,
+        activeSet,
+        createSet,
+        setActiveSetId,
+        deleteSet,
         updateFlashcard,
         deleteFlashcard,
         addFlashcard,
