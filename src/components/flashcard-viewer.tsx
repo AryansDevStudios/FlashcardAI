@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Shuffle, Trash2, Pencil, Save } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Shuffle,
+  Trash2,
+  Pencil,
+  Save,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMindPalace } from '@/contexts/mind-palace-context';
 import type { FlashcardSet, Flashcard } from '@/lib/types';
@@ -11,22 +18,43 @@ interface FlashcardViewerProps {
   flashcardSet: FlashcardSet;
 }
 
-export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcardSet }) => {
+export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({
+  flashcardSet,
+}) => {
   const { deleteFlashcard } = useMindPalace();
   const [cards, setCards] = useState<Flashcard[]>(flashcardSet.flashcards);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
+    // When the flashcard set changes from the context, update the component's state
     setCards(flashcardSet.flashcards);
     if (flashcardSet.flashcards.length > 0 && currentIndex >= flashcardSet.flashcards.length) {
+      // If the current index is out of bounds (e.g., after a deletion), reset to the last card
       setCurrentIndex(Math.max(0, flashcardSet.flashcards.length - 1));
     } else if (flashcardSet.flashcards.length === 0) {
+      // If the set is empty, reset index to 0
       setCurrentIndex(0);
     }
-    // Reset editing state when flashcardSet changes
+     // Always reset editing state when cards change
     setIsEditing(false);
   }, [flashcardSet.flashcards, currentIndex]);
+
+
+  useEffect(() => {
+    // Add keydown listener for navigation
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if(isEditing) return;
+        if (e.key === 'ArrowRight') {
+            handleNext();
+        } else if (e.key === 'ArrowLeft') {
+            handlePrev();
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing]); // Rerun when isEditing changes
+
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, cards.length - 1));
@@ -57,18 +85,21 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcardSet }
       setIsEditing(false);
     }
   };
-  
+
   const toggleEdit = () => {
     if (currentCard) {
       setIsEditing(!isEditing);
     }
-  }
+  };
 
-  const currentCard = useMemo(() => cards[currentIndex], [cards, currentIndex]);
+  const currentCard = useMemo(
+    () => cards[currentIndex],
+    [cards, currentIndex]
+  );
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 w-full">
-      <div className="w-full max-w-3xl flex-1 flex flex-col items-center">
+    <div className="flex h-full w-full flex-col items-center justify-center">
+      <div className="flex w-full max-w-3xl flex-1 flex-col items-center">
         {currentCard ? (
           <FlashcardItem
             key={currentCard.id} // Ensures re-render on card change
@@ -78,70 +109,81 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcardSet }
             onSave={() => setIsEditing(false)}
           />
         ) : (
-          <div className="aspect-video w-full flex items-center justify-center bg-card rounded-lg shadow-md">
-            <p className="text-xl text-muted-foreground">No flashcards in this set.</p>
+          <div className="flex aspect-video w-full items-center justify-center rounded-lg border bg-card shadow-md">
+            <p className="text-xl text-muted-foreground">
+              No flashcards in this set.
+            </p>
           </div>
         )}
-        
-        <div className="w-full max-w-3xl mt-8 flex flex-col sm:flex-row items-center justify-between">
-            <div className="w-full sm:w-auto flex justify-center mb-4 sm:mb-0 space-x-2">
-                <Button
-                onClick={handleShuffle}
-                variant="outline"
-                aria-label="Shuffle cards"
-                disabled={cards.length < 2 || isEditing}
-                >
-                <Shuffle className="w-5 h-5 mr-2" />
-                Shuffle
-                </Button>
-                 <Button
-                    onClick={toggleEdit}
-                    variant="outline"
-                    aria-label={isEditing ? 'Save card' : 'Edit card'}
-                    disabled={!currentCard}
-                    >
-                    {isEditing ? <Save className="w-5 h-5 mr-2" /> : <Pencil className="w-5 h-5 mr-2" />}
-                    {isEditing ? 'Save' : 'Edit'}
-                </Button>
-            </div>
 
-            <div className="flex items-center justify-center space-x-4">
-                <Button
-                onClick={handlePrev}
-                disabled={currentIndex === 0 || isEditing}
-                variant="outline"
-                size="icon"
-                aria-label="Previous card"
-                >
-                <ChevronLeft className="w-6 h-6" />
-                </Button>
+        <div className="mt-8 flex w-full max-w-3xl flex-col items-center justify-between sm:flex-row">
+          <div className="mb-4 flex w-full justify-center sm:mb-0 sm:w-auto sm:justify-start space-x-2">
+            <Button
+              onClick={handleShuffle}
+              variant="outline"
+              aria-label="Shuffle cards"
+              disabled={cards.length < 2 || isEditing}
+            >
+              <Shuffle className="mr-2 h-5 w-5" />
+              Shuffle
+            </Button>
+            <Button
+              onClick={toggleEdit}
+              variant="outline"
+              aria-label={isEditing ? 'Save card' : 'Edit card'}
+              disabled={!currentCard}
+            >
+              {isEditing ? (
+                <Save className="mr-2 h-5 w-5" />
+              ) : (
+                <Pencil className="mr-2 h-5 w-5" />
+              )}
+              {isEditing ? 'Save' : 'Edit'}
+            </Button>
+          </div>
 
-                <p className="text-lg font-medium text-muted-foreground tabular-nums w-24 text-center">
-                {cards.length > 0 ? `${currentIndex + 1} / ${cards.length}` : '0 / 0'}
-                </p>
+          <div className="flex items-center justify-center space-x-4">
+            <Button
+              onClick={handlePrev}
+              disabled={currentIndex === 0 || isEditing}
+              variant="outline"
+              size="icon"
+              aria-label="Previous card"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
 
-                <Button
-                onClick={handleNext}
-                disabled={currentIndex === cards.length - 1 || cards.length === 0 || isEditing}
-                variant="outline"
-                size="icon"
-                aria-label="Next card"
-                >
-                <ChevronRight className="w-6 h-6" />
-                </Button>
-            </div>
-             <div className="w-full sm:w-auto flex justify-center mt-4 sm:mt-0">
-                 <Button
-                    onClick={handleDelete}
-                    variant="destructive"
-                    aria-label="Delete card"
-                    disabled={!currentCard || isEditing}
-                    >
-                    <Trash2 className="w-5 h-5 mr-2" />
-                    Delete
-                </Button>
-            </div>
+            <p className="w-24 text-center text-lg font-medium tabular-nums text-muted-foreground">
+              {cards.length > 0
+                ? `${currentIndex + 1} / ${cards.length}`
+                : '0 / 0'}
+            </p>
 
+            <Button
+              onClick={handleNext}
+              disabled={
+                currentIndex === cards.length - 1 ||
+                cards.length === 0 ||
+                isEditing
+              }
+              variant="outline"
+              size="icon"
+              aria-label="Next card"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </div>
+          <div className="mt-4 flex w-full justify-center sm:mt-0 sm:w-auto sm:justify-end">
+            <Button
+              onClick={handleDelete}
+              variant="destructive"
+              aria-label="Delete card"
+              disabled={!currentCard || isEditing}
+            >
+              <Trash2 className="mr-2 h-5 w-5" />
+              Delete
+            </Button>
+          </div>
         </div>
       </div>
     </div>
