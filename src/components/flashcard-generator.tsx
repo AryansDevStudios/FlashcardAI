@@ -76,7 +76,7 @@ export function FlashcardGenerator() {
     <div className="container mx-auto flex max-w-2xl flex-col items-center justify-center gap-8 px-4 py-16">
         <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                Welcome to your Mind Palace
+                Welcome to FlashcardAI
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
                 Create a new "palace" of flashcards using AI to start your learning journey.

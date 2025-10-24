@@ -7,7 +7,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Mind Palace',
+  title: 'FlashcardAI',
   description: 'Generate and study flashcards with AI.',
 };
 

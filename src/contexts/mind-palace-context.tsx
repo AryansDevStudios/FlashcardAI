@@ -22,9 +22,9 @@ const MindPalaceContext = createContext<MindPalaceContextType | undefined>(
 export const MindPalaceProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [palaces, setPalaces] = useLocalStorage<Palace[]>('mind-palaces', []);
+  const [palaces, setPalaces] = useLocalStorage<Palace[]>('flashcard-ai-palaces', []);
   const [activePalaceId, setActivePalaceId] = useLocalStorage<string | null>(
-    'mind-palaces-active',
+    'flashcard-ai-active',
     null
   );
   const [activePalace, setActivePalace] = useState<Palace | null>(null);

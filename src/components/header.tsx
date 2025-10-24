@@ -13,7 +13,7 @@ export function Header() {
       <div className="flex items-center gap-2">
         <SidebarTrigger className="md:hidden" />
         <BrainCircuit className="h-7 w-7 text-primary" />
-        <h1 className="text-xl font-semibold tracking-tight">Mind Palace</h1>
+        <h1 className="text-xl font-semibold tracking-tight">FlashcardAI</h1>
       </div>
      
       <div className="flex items-center gap-2">

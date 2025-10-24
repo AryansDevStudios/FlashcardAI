@@ -23,7 +23,7 @@ type ViewMode = 'grid' | 'viewer';
 
 export function FlashcardGrid({ palace }: FlashcardGridProps) {
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
-    'mind-palace-view-mode',
+    'flashcard-ai-view-mode',
     'viewer'
   );
   const { addFlashcard } = useMindPalace();
