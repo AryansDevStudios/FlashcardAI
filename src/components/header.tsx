@@ -1,11 +1,12 @@
 'use client';
 
-import { BrainCircuit, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useMindPalace } from '@/contexts/mind-palace-context';
 import { Button } from './ui/button';
 import { TtsSettingsDialog } from './tts-settings';
+import Image from 'next/image';
 
 export function Header() {
   const { activeSet, setActiveSetId } = useMindPalace();
@@ -13,7 +14,7 @@ export function Header() {
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="md:hidden" />
-        <BrainCircuit className="h-7 w-7 text-primary" />
+        <Image src="/logo.ico" alt="FlashcardAI Logo" width={28} height={28} />
         <h1 className="text-xl font-semibold tracking-tight">FlashcardAI</h1>
       </div>
 

@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export const metadata: Metadata = {
   title: 'FlashcardAI',
   description: 'Generate and study flashcards with AI.',
+  icons: {
+    icon: '/logo.ico',
+  },
 };
 
 export default function RootLayout({
