@@ -25,6 +25,9 @@ function AppContent() {
               <FlashcardGenerator />
             )}
           </main>
+          <footer className="p-4 text-center text-sm text-muted-foreground">
+            Made by Aryan Gupta
+          </footer>
         </div>
       </SidebarInset>
     </SidebarProvider>
